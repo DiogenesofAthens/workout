@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import db from './db';
 import programsRouter from './routes/programs';
 import sessionsRouter from './routes/sessions';
@@ -26,6 +27,13 @@ app.use('/api/exercises', exercisesRouter);
 app.use('/api/users', usersRouter);
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
+
+// Serve React app in production
+if (process.env.NODE_ENV === 'production') {
+  const clientDist = path.resolve(__dirname, '../../client/dist');
+  app.use(express.static(clientDist));
+  app.get('*', (_req, res) => res.sendFile(path.join(clientDist, 'index.html')));
+}
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
